@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "574641272878",
+    "project_id": "expansetrackerapp-96fb6",
+    "storage_bucket": "expansetrackerapp-96fb6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574641272878:android:be7ff4337a911952de87bf",
+        "android_client_info": {
+          "package_name": "com.app.expanse_tracker_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUWZTCJ2M_DtXn-Iv4ye2BlYo_DNEp8sU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
