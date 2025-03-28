@@ -67,8 +67,6 @@ class UserDataRemoteDataSourceImpl implements UserDataRemoteDataSource {
         updateData, 
         SetOptions(merge: true)
       );
-
-      await firestore.collection('users').doc(userId).delete();
       
       return const Right(null);
     } catch (e) {
