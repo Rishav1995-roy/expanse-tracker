@@ -1,3 +1,4 @@
+import 'package:expanse_tracker_app/core/storage/user_storage.dart';
 import 'package:expanse_tracker_app/core/util/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -93,6 +94,7 @@ class _SignupFormState extends State<SignupForm> {
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
               salary: double.parse(_salaryController.text.trim().replaceAll(",", "")),
+              fcmToken: UserStorage.getFcmToken(),
             ),
           );
     }
@@ -192,10 +194,10 @@ class _SignupFormState extends State<SignupForm> {
                 decoration: InputDecoration(
                   labelText: 'Monthly Salary',
                   prefixIcon: _salaryController.text.isEmpty
-                      ? Icon(Icons.attach_money)
+                      ? const Icon(Icons.attach_money)
                       : null,
                   prefix: _salaryController.text.isEmpty
-                      ? IgnorePointer()
+                      ? const IgnorePointer()
                       : Text(
                           '₹ ',
                           style: Theme.of(context).textTheme.headlineMedium!.copyWith(

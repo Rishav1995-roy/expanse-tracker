@@ -5,6 +5,7 @@ class UserStorage {
 
   static const String _boxName = 'user_box';
   static const String _userIdKey = 'user_id';
+  static const String _fcmTokenKey = 'fcm_token';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -17,6 +18,14 @@ class UserStorage {
 
   static String getUserId() {
     return box.get(_userIdKey, defaultValue: '');
+  }
+
+  static void svaeFcmToken(String token) {
+    box.put(_fcmTokenKey, token);
+  }
+
+  static String getFcmToken() {
+    return box.get(_fcmTokenKey, defaultValue: '');
   }
 
   static void clearUserId() {

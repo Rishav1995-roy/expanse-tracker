@@ -1,3 +1,4 @@
+import 'package:expanse_tracker_app/core/storage/user_storage.dart';
 import 'package:expanse_tracker_app/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,6 +32,7 @@ class _LoginPageState extends State<LoginPage> {
         SignInWithEmailPasswordEvent(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
+          fcmToken: UserStorage.getFcmToken(),
         ),
       );
     }

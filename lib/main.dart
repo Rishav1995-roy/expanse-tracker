@@ -33,7 +33,7 @@ void main() async {
       await FirebaseMessaging.instance.setAutoInitEnabled(true);
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         final fcmToken = await FirebaseMessaging.instance.getToken();
-        debugPrint('User fcm token: $fcmToken');
+        UserStorage.svaeFcmToken(fcmToken ?? '');
       }
       //Pass all uncaught errors from the framework to Crashlytics.
       FlutterError.onError = (details) {

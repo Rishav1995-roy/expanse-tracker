@@ -1,83 +1,18 @@
-import 'package:expanse_tracker_app/core/storage/user_storage.dart';
 import 'package:expanse_tracker_app/core/util/images.dart';
+import 'package:expanse_tracker_app/core/util/string_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../data/models/expense_model.dart';
-import '../bloc/user_data_bloc.dart';
-import '../bloc/user_data_event.dart';
-import '../bloc/user_data_state.dart';
-
-class ExpensesListWidget extends StatefulWidget {
-  const ExpensesListWidget({super.key});
-
-  @override
-  State<ExpensesListWidget> createState() => _ExpensesListWidgetState();
-}
-
-class _ExpensesListWidgetState extends State<ExpensesListWidget> {
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  void _loadUserData() {
-    final userId = UserStorage.getUserId();
-    if (userId.isNotEmpty) {
-      context.read<UserDataBloc>().add(LoadUserDataEvent(userId: userId));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<UserDataBloc, UserDataState>(
-      builder: (context, state) {
-        if (state is UserDataLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state is UserDataError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(state.message),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _loadUserData,
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        if (state is UserDataLoaded) {
-          if (state.expenses.isEmpty) {
-            return const Center(
-              child: Text('No expenses added yet. Add your first expense!'),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: state.expenses.length,
-            itemBuilder: (context, index) {
-              final expense = state.expenses[index];
-              return ExpenseCard(expense: expense);
-            },
-          );
-        }
-
-        return const Center(child: Text('No data available'));
-      },
-    );
-  }
-}
 
 class ExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
+  final String categoryName;
 
-  const ExpenseCard({super.key, required this.expense});
+  const ExpenseCard({
+    super.key,
+    required this.expense,
+    required this.categoryName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +31,7 @@ class ExpenseCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      _getImage(expense.category),
+                      _getImage(categoryName),
                       width: 18,
                       height: 18,
                     ),
@@ -104,12 +39,19 @@ class ExpenseCard extends StatelessWidget {
                       width: 10,
                     ),
                     Text(
-                      expense.category,
+                      categoryName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                   ],
+                ),
+                Text(
+                  'Due date: ${expense.dueDate}${_getOrdinalSuffix(int.parse(expense.dueDate))} of every month',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.black,
+                        fontSize: 13
+                      ),
                 ),
                 if (expense.updatedAt != null)
                   Text(
@@ -121,7 +63,7 @@ class ExpenseCard extends StatelessWidget {
               ],
             ),
             Text(
-              '₹ ${expense.amount.toStringAsFixed(2)}',
+              '₹ ${expense.amount.toString().convertCurrencyInBottomSheet(expense.amount, false)}',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
@@ -134,7 +76,7 @@ class ExpenseCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    return DateFormat('dd MMM,yyyy').format(dateTime);
   }
 
   String _getImage(String category) {
@@ -160,9 +102,27 @@ class ExpenseCard extends StatelessWidget {
       case 'Others':
         return Images.others;
       case 'Wifi rent':
-        return Images.wifi;  
+        return Images.wifi;
+      case 'Investments':
+        return Images.investment;
       default:
         return '';
+    }
+  }
+
+  String _getOrdinalSuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return 'th'; // Special case for 11, 12, 13
+    }
+    switch (day % 10) {
+      case 1:
+        return 'st';
+      case 2:
+        return 'nd';
+      case 3:
+        return 'rd';
+      default:
+        return 'th';
     }
   }
 }

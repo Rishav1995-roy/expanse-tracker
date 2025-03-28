@@ -5,8 +5,6 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../../core/storage/user_storage.dart';
-import '../bloc/user_data_bloc.dart';
-import '../bloc/user_data_event.dart';
 import '../widgets/home_widget.dart';
 import '../widgets/expense_input_dialog.dart';
 
@@ -14,16 +12,10 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<void> _showExpenseInputDialog(BuildContext context) async {
-    final userId = UserStorage.getUserId();
     await showDialog(
       context: context,
       builder: (context) => const ExpenseInputDialog(),
     );
-    
-    // Reload data after dialog is closed
-    if (userId.isNotEmpty) {
-      context.read<UserDataBloc>().add(LoadUserDataEvent(userId: userId));
-    }
   }
 
   @override
@@ -51,7 +43,7 @@ class HomePage extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                context.read<AuthBloc>().add(SignOutEvent());
+                                context.read<AuthBloc>().add(const SignOutEvent());
                                 Navigator.pop(context);
                               },
                               child: const Text('Sign Out'),

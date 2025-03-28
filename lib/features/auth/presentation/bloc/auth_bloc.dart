@@ -44,9 +44,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     
     result.fold(
-      (failure) => emit(AuthError('Invalid email or password')),
+      (failure) => emit(const AuthError('Invalid email or password')),
       (user) {
         UserStorage.saveUserId(user.id);
+        userDataBloc.add(
+          SaveUserFcmTokenEvent(
+            userId: user.id,
+            fcmToken: event.fcmToken,
+          ),
+        );
         emit(Authenticated(user));
       },
     );
@@ -82,6 +88,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           SaveUserSalaryEvent(
             userId: user.id,
             salary: event.salary,
+            fcmToken: event.fcmToken,
           ),
         );
         emit(Authenticated(user));
@@ -116,7 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final result = await signOut();
     result.fold(
-      (failure) => emit(AuthError('Failed to sign out')),
+      (failure) => emit(const AuthError('Failed to sign out')),
       (_) {
         UserStorage.clearUserId();
         emit(Unauthenticated());

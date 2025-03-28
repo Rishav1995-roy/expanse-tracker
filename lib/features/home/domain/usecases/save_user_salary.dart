@@ -7,7 +7,7 @@ class SaveUserSalary {
 
   SaveUserSalary(this.repository);
 
-  Future<Either<Failure, void>> call(String userId, double salary) async {
-    return await repository.saveUserSalary(userId, salary);
+  Future<Either<Failure, void>> call(String userId, double salary, String fcmToken) async {
+    return await repository.saveUserSalary(userId, salary, fcmToken);
   }
 } 

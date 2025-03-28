@@ -18,6 +18,9 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   String _selectedCategory = '2- wheeler loan';
+  String _dueDate = '2';
+  bool _wasSaved = false;
+  List<int> numbers = List.generate(28, (index) => index + 1);
 
   final Map<String, dynamic> _categories = {
     Images.bike: '2- wheeler loan',
@@ -31,6 +34,7 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
     Images.maid: 'Maid charges',
     Images.ott: 'OTT charges',
     Images.others: 'Others',
+    Images.investment: 'Investments',
   };
 
   @override
@@ -40,6 +44,7 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
   }
 
   void _loadUserData() {
+    if (!_wasSaved) return;
     final userId = UserStorage.getUserId();
     if (userId.isNotEmpty) {
       context.read<UserDataBloc>().add(LoadUserDataEvent(userId: userId));
@@ -51,14 +56,14 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
     return BlocListener<UserDataBloc, UserDataState>(
       listener: (context, state) {
         if (state is UserDataSaved) {
-          // Load updated data after successful save
+          _wasSaved = true;
           _loadUserData();
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Expense saved successfully')),
           );
         }
-        
+
         if (state is UserDataError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -145,6 +150,31 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
                     return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _dueDate,
+                  decoration: const InputDecoration(
+                    labelText: 'Due date',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: numbers
+                      .map(
+                        (e) => DropdownMenuItem<String>(
+                          value: e.toString(),
+                          child: Text(
+                            e.toString(),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _dueDate = newValue;
+                      });
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -164,20 +194,22 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
                   ),
                 );
               }
-              
+
               return ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final userId = UserStorage.getUserId();
                     if (userId.isNotEmpty) {
-                      final amount = double.parse(_amountController.text.replaceAll(",", ""));
+                      final amount = double.parse(
+                          _amountController.text.replaceAll(",", ""));
                       context.read<UserDataBloc>().add(
-                        SaveExpenseEvent(
-                          userId: userId,
-                          category: _selectedCategory,
-                          amount: amount,
-                        ),
-                      );
+                            SaveExpenseEvent(
+                              userId: userId,
+                              category: _selectedCategory,
+                              amount: amount,
+                              dueDate: _dueDate,
+                            ),
+                          );
                     }
                   }
                 },

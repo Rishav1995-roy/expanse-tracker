@@ -1,3 +1,4 @@
+import 'package:expanse_tracker_app/core/util/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
@@ -18,7 +19,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     // Check authentication status when the splash screen is initialized
-    context.read<AuthBloc>().add(CheckAuthStatusEvent());
+    context.read<AuthBloc>().add(const CheckAuthStatusEvent());
   }
 
   @override
@@ -46,10 +47,10 @@ class _SplashPageState extends State<SplashPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // App logo
-              Icon(
-                Icons.account_balance_wallet,
-                size: 80,
-                color: Theme.of(context).primaryColor,
+              Image.asset(
+                Images.wallet,
+                width: 50,
+                height: 50,
               ),
               const SizedBox(height: 24),
               const Text(

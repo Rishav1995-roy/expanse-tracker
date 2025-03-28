@@ -13,5 +13,6 @@ class Images {
   static const house = 'assets/images/real-estate.png';
   static const wifi = 'assets/images/wifi.png';
   static const ott = 'assets/images/ott.png';
-
+  static const wallet = 'assets/images/wallet.png';
+  static const investment = 'assets/images/investment.png';
 }

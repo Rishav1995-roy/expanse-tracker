@@ -7,7 +7,7 @@ class SaveExpense {
 
   SaveExpense(this.repository);
 
-  Future<Either<Failure, void>> call(String userId, String category, double amount) async {
-    return await repository.saveExpense(userId, category, amount);
+  Future<Either<Failure, void>> call(String userId, String category, double amount, String dueDate) async {
+    return await repository.saveExpense(userId, category, amount, dueDate);
   }
 } 

@@ -1,5 +1,5 @@
+import 'package:expanse_tracker_app/features/home/domain/usecases/save_fcm_token.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/models/user_data_model.dart';
 import '../../domain/usecases/load_user_data.dart';
 import '../../domain/usecases/load_user_salary.dart';
 import '../../domain/usecases/save_expense.dart';
@@ -9,6 +9,7 @@ import 'user_data_state.dart';
 
 class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
   final SaveUserSalary saveUserSalary;
+  final SaveFcmToken saveFcmToken;
   final LoadUserSalary loadUserSalary;
   final SaveExpense saveExpense;
   final LoadUserData loadUserData;
@@ -16,6 +17,7 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
   UserDataBloc({
     required this.saveUserSalary,
     required this.loadUserSalary,
+    required this.saveFcmToken,
     required this.saveExpense,
     required this.loadUserData,
   }) : super(UserDataInitial()) {
@@ -23,6 +25,21 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
     on<LoadUserSalaryEvent>(_onLoadUserSalary);
     on<SaveExpenseEvent>(_onSaveExpense);
     on<LoadUserDataEvent>(_onLoadUserData);
+    on<SaveUserFcmTokenEvent>(_onSaveUserToken);
+  }
+
+  Future<void> _onSaveUserToken(
+    SaveUserFcmTokenEvent event,
+    Emitter<UserDataState> emit,
+  ) async {
+    emit(UserDataLoading());
+    
+    final result = await saveFcmToken(event.userId, event.fcmToken);
+    
+    result.fold(
+      (failure) => emit(const UserDataError('Failed to save salary')),
+      (_) => emit(UserTokenLoaded(token: event.fcmToken)),
+    );
   }
 
   Future<void> _onSaveUserSalary(
@@ -31,10 +48,10 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
   ) async {
     emit(UserDataLoading());
     
-    final result = await saveUserSalary(event.userId, event.salary);
+    final result = await saveUserSalary(event.userId, event.salary, event.fcmToken);
     
     result.fold(
-      (failure) => emit(UserDataError('Failed to save salary')),
+      (failure) => emit(const UserDataError('Failed to save salary')),
       (_) => emit(UserDataLoaded(salary: event.salary)),
     );
   }
@@ -48,7 +65,7 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
     final result = await loadUserSalary(event.userId);
     
     result.fold(
-      (failure) => emit(UserDataError('Failed to load salary')),
+      (failure) => emit(const UserDataError('Failed to load salary')),
       (salary) => emit(UserDataLoaded(salary: salary)),
     );
   }
@@ -59,10 +76,10 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
   ) async {
     emit(UserDataLoading());
     
-    final result = await saveExpense(event.userId, event.category, event.amount);
+    final result = await saveExpense(event.userId, event.category, event.amount, event.dueDate);
     
     result.fold(
-      (failure) => emit(UserDataError('Failed to save expense')),
+      (failure) => emit(const UserDataError('Failed to save expense')),
       (_) {
         emit(UserDataSaved());
       },
@@ -78,7 +95,7 @@ class UserDataBloc extends Bloc<UserDataEvent, UserDataState> {
     final result = await loadUserData(event.userId);
     
     result.fold(
-      (failure) => emit(UserDataError('Failed to load user data')),
+      (failure) => emit(const UserDataError('Failed to load user data')),
       (userData) => emit(UserDataLoaded(
         salary: userData.salary,
         expenses: userData.expenses,

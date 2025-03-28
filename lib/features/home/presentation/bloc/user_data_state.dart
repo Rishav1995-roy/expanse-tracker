@@ -16,15 +16,26 @@ class UserDataSaved extends UserDataState {}
 
 class UserDataLoaded extends UserDataState {
   final double? salary;
-  final List<ExpenseModel> expenses;
+  final Map<String, ExpenseModel> expenses;
 
   const UserDataLoaded({
     this.salary,
-    this.expenses = const [],
+    this.expenses = const {},
   });
 
   @override
   List<Object?> get props => [salary, expenses];
+}
+
+class UserTokenLoaded extends UserDataState {
+  final String? token;
+
+  const UserTokenLoaded({
+    this.token,
+  });
+
+  @override
+  List<Object?> get props => [token];
 }
 
 class UserDataError extends UserDataState {

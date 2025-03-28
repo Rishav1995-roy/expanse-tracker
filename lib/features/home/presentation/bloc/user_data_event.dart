@@ -10,14 +10,29 @@ abstract class UserDataEvent extends Equatable {
 class SaveUserSalaryEvent extends UserDataEvent {
   final String userId;
   final double salary;
+  final String fcmToken;
 
   const SaveUserSalaryEvent({
     required this.userId,
     required this.salary,
+    required this.fcmToken,
   });
 
   @override
-  List<Object?> get props => [userId, salary];
+  List<Object?> get props => [userId, salary, fcmToken];
+}
+
+class SaveUserFcmTokenEvent extends UserDataEvent {
+  final String userId;
+  final String fcmToken;
+
+  const SaveUserFcmTokenEvent({
+    required this.userId,
+    required this.fcmToken,
+  });
+
+  @override
+  List<Object?> get props => [userId, fcmToken];
 }
 
 class LoadUserSalaryEvent extends UserDataEvent {
@@ -35,15 +50,17 @@ class SaveExpenseEvent extends UserDataEvent {
   final String userId;
   final String category;
   final double amount;
+  final String dueDate;
 
   const SaveExpenseEvent({
     required this.userId,
     required this.category,
     required this.amount,
+    required this.dueDate,
   });
 
   @override
-  List<Object?> get props => [userId, category, amount];
+  List<Object?> get props => [userId, category, amount, dueDate];
 }
 
 class LoadUserDataEvent extends UserDataEvent {

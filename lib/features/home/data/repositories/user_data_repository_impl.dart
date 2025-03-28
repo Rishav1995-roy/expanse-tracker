@@ -10,8 +10,8 @@ class UserDataRepositoryImpl implements UserDataRepository {
   UserDataRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, void>> saveUserSalary(String userId, double salary) async {
-    return await remoteDataSource.saveUserSalary(userId, salary);
+  Future<Either<Failure, void>> saveUserSalary(String userId, double salary, String fcmToken) async {
+    return await remoteDataSource.saveUserSalary(userId, salary, fcmToken);
   }
 
   @override
@@ -20,12 +20,17 @@ class UserDataRepositoryImpl implements UserDataRepository {
   }
   
   @override
-  Future<Either<Failure, void>> saveExpense(String userId, String category, double amount) async {
-    return await remoteDataSource.saveExpense(userId, category, amount);
+  Future<Either<Failure, void>> saveExpense(String userId, String category, double amount, String dueDate) async {
+    return await remoteDataSource.saveExpense(userId, category, amount, dueDate);
   }
   
   @override
   Future<Either<Failure, UserDataModel>> loadUserData(String userId) async {
     return await remoteDataSource.loadUserData(userId);
+  }
+  
+  @override
+  Future<Either<Failure, void>> saveUserToken(String userId, String fcmToken) async {
+     return await remoteDataSource.saveUserToken(userId, fcmToken);
   }
 } 
