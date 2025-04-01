@@ -14,7 +14,11 @@ class HomePage extends StatelessWidget {
   Future<void> _showExpenseInputDialog(BuildContext context) async {
     await showDialog(
       context: context,
-      builder: (context) => const ExpenseInputDialog(),
+      builder: (context) => const ExpenseInputDialog(
+        categoryName: '',
+        amount: 0,
+        dueDate: '',
+      ),
     );
   }
 

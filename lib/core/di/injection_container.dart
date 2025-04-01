@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expanse_tracker_app/features/home/domain/usecases/delete_user_expanse.dart';
 import 'package:expanse_tracker_app/features/home/domain/usecases/save_fcm_token.dart';
+import 'package:expanse_tracker_app/features/home/domain/usecases/update_user_expanse.dart';
+import 'package:expanse_tracker_app/features/home/domain/usecases/update_user_salary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -33,6 +36,9 @@ Future<void> init() async {
       saveExpense: sl(),
       saveFcmToken: sl(),
       loadUserData: sl(),
+      updateUserSalary: sl(),
+      deleteExpense: sl(),
+      updateExpense: sl(),
     ),
   );
 
@@ -56,6 +62,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LoadUserSalary(sl()));
   sl.registerLazySingleton(() => SaveExpense(sl()));
   sl.registerLazySingleton(() => LoadUserData(sl()));
+  sl.registerLazySingleton(() => UpdateUserSalary(sl()));
+  sl.registerLazySingleton(() => UpdateExpense(sl()));
+  sl.registerLazySingleton(() => DeleteExpense(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(

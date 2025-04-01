@@ -8,7 +8,16 @@ import '../bloc/user_data_event.dart';
 import '../bloc/user_data_state.dart';
 
 class ExpenseInputDialog extends StatefulWidget {
-  const ExpenseInputDialog({super.key});
+  final double amount;
+  final String categoryName;
+  final String dueDate;
+
+  const ExpenseInputDialog({
+    super.key,
+    required this.amount,
+    required this.categoryName,
+    required this.dueDate,
+  });
 
   @override
   State<ExpenseInputDialog> createState() => _ExpenseInputDialogState();
@@ -38,6 +47,27 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  void _loadData() {
+    if (widget.categoryName.isNotEmpty) {
+      _dueDate = widget.dueDate.toString();
+      _selectedCategory = widget.categoryName;
+      _amountController.text = "".convertCurrencyInBottomSheet(
+        widget.amount,
+        false,
+      );
+      _amountController.selection = TextSelection.collapsed(
+        offset: _amountController.text.length,
+      );
+      if(mounted) setState(() {});
+    }
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     super.dispose();
@@ -60,7 +90,7 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
           _loadUserData();
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expense saved successfully')),
+            SnackBar(content: Text(widget.categoryName.isEmpty? 'Expense saved successfully' : 'Expense updated successfully')),
           );
         }
 
@@ -202,6 +232,7 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
                     if (userId.isNotEmpty) {
                       final amount = double.parse(
                           _amountController.text.replaceAll(",", ""));
+                      if(widget.categoryName.isEmpty) {    
                       context.read<UserDataBloc>().add(
                             SaveExpenseEvent(
                               userId: userId,
@@ -210,10 +241,20 @@ class _ExpenseInputDialogState extends State<ExpenseInputDialog> {
                               dueDate: _dueDate,
                             ),
                           );
+                      } else {
+                        context.read<UserDataBloc>().add(
+                            UpdateExpenseEvent(
+                              userId: userId,
+                              category: _selectedCategory,
+                              amount: amount,
+                              dueDate: _dueDate,
+                            ),
+                          );
+                      }
                     }
                   }
                 },
-                child: const Text('Save'),
+                child: Text(widget.categoryName.isEmpty? 'Save' : 'Update'),
               );
             },
           ),

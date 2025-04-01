@@ -1,5 +1,7 @@
 import 'package:expanse_tracker_app/core/util/images.dart';
 import 'package:expanse_tracker_app/core/util/string_extension.dart';
+import 'package:expanse_tracker_app/features/home/presentation/widgets/dotted_divider.dart';
+import 'package:expanse_tracker_app/features/home/presentation/widgets/update_user_income_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/user_data_bloc.dart';
@@ -45,6 +47,19 @@ class _HomeWidgetState extends State<HomeWidget> with WidgetsBindingObserver {
     }
   }
 
+  void _showUpdateSalaryDialog(
+    BuildContext context,
+    double salary,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (context) => UpdateUserIncomeDialog(
+        salary: salary,
+        userID: UserStorage.getUserId(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -71,6 +86,11 @@ class _HomeWidgetState extends State<HomeWidget> with WidgetsBindingObserver {
                 ],
               ),
             );
+          }
+
+          if (state is UserDataSaved) {
+            _loadUserData();
+            Navigator.pop(context);
           }
 
           if (state is UserDataLoaded) {
@@ -119,6 +139,22 @@ class _HomeWidgetState extends State<HomeWidget> with WidgetsBindingObserver {
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () {
+                                  _showUpdateSalaryDialog(
+                                    context,
+                                    state.salary ?? 0.0,
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.update,
+                                  size: 20,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -152,28 +188,30 @@ class _HomeWidgetState extends State<HomeWidget> with WidgetsBindingObserver {
                   ],
 
                   // Expenses Title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Your Expenses',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                  if (state.expenses.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Your Expenses',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Total: ₹ ${_calculateTotal(state.expenses).toString().convertCurrencyInBottomSheet(_calculateTotal(state.expenses), false)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.secondary,
+                          Text(
+                            'Total: ₹ ${_calculateTotal(state.expenses).toString().convertCurrencyInBottomSheet(_calculateTotal(state.expenses), false)}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
 
                   // Expenses List
                   state.expenses.isEmpty
@@ -190,15 +228,67 @@ class _HomeWidgetState extends State<HomeWidget> with WidgetsBindingObserver {
                         )
                       : ListView.builder(
                           shrinkWrap: true,
+                          padding: EdgeInsets.zero,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state.expenses.length,
                           itemBuilder: (context, index) {
                             return ExpenseCard(
                               expense: state.expenses.values.elementAt(index),
-                              categoryName: state.expenses.keys.elementAt(index),
+                              categoryName:
+                                  state.expenses.keys.elementAt(index),
+                              loadUserData: _loadUserData,
                             );
                           },
                         ),
+                  if (state.expenses.isNotEmpty) ...[
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const MySeparator(),
+                    // Expenses Title
+                    Card(
+                      margin: const EdgeInsets.all(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Your savings',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Image.asset(
+                                  Images.money,
+                                  width: 15,
+                                  height: 15,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  '₹ ${state.salary.toString().convertCurrencyInBottomSheet((state.salary! - _calculateTotal(state.expenses)), false)}',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 120),
+                  ],
                 ],
               ),
             );
